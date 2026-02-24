@@ -1,0 +1,147 @@
+-- Small Auto Jump GUI (Toggle) with Snake Border
+
+local Players = game:GetService("Players")
+
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+-- Create GUI
+
+local gui = Instance.new("ScreenGui")
+
+gui.Name = "MiniAutoJump"
+
+gui.ResetOnSpawn = false
+
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Small Frame
+
+local frame = Instance.new("Frame")
+
+frame.Size = UDim2.new(0, 110, 0, 40) -- small size
+
+frame.Position = UDim2.new(0.5, -55, 0.8, 0)
+
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+
+frame.BorderSizePixel = 0
+
+frame.Parent = gui
+
+frame.Active = true
+
+frame.Draggable = true
+
+local corner = Instance.new("UICorner")
+
+corner.CornerRadius = UDim.new(0, 10)
+
+corner.Parent = frame
+
+-- Snake border
+
+local border = Instance.new("UIStroke")
+
+border.Parent = frame
+
+border.Thickness = 3
+
+border.LineJoinMode = Enum.LineJoinMode.Round
+
+border.Color = Color3.fromRGB(255, 255, 255)
+
+-- Animate snake border
+
+local colors = {Color3.fromRGB(255,255,255), Color3.fromRGB(255, 255, 0)}
+
+local index = 1
+
+RunService.Heartbeat:Connect(function(delta)
+
+	if frame:IsDescendantOf(player.PlayerGui) then		index = index + 1
+
+		if index > #colors then index = 1 end
+
+		border.Color = colors[index]
+
+	end
+
+end)
+
+-- Toggle Button
+
+local toggle = Instance.new("TextButton")
+
+toggle.Size = UDim2.new(1, -10, 1, -10)
+
+toggle.Position = UDim2.new(0, 5, 0, 5)
+
+toggle.Text = "OFF"
+
+toggle.TextScaled = true
+
+toggle.TextColor3 = Color3.fromRGB(255,255,255)
+
+toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+
+toggle.Parent = frame
+
+local btnCorner = Instance.new("UICorner")
+
+btnCorner.CornerRadius = UDim.new(0, 8)
+
+btnCorner.Parent = toggle
+
+-- System
+
+local autoJump = false
+
+local humanoid
+
+local function setupCharacter(char)
+
+	humanoid = char:WaitForChild("Humanoid")
+
+end
+
+if player.Character then
+
+	setupCharacter(player.Character)
+
+end
+
+player.CharacterAdded:Connect(setupCharacter)
+
+toggle.MouseButton1Click:Connect(function()
+
+	autoJump = not autoJump
+
+	
+
+	if autoJump then
+
+		toggle.Text = "ON"
+
+		toggle.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+
+	else
+
+		toggle.Text = "OFF"
+
+		toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+
+	end
+
+end)
+
+RunService.Heartbeat:Connect(function()
+
+	if autoJump and humanoid and humanoid.FloorMaterial ~= Enum.Material.Air then
+
+		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+
+	end
+
+end)
